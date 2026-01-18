@@ -41,7 +41,7 @@ with st.expander("📝 Analyze Text", expanded=True):
     text = st.text_area("Enter IMDB review for sentiment analysis:")
 
     if text:
-        # Clean the input text
+        # Clean the input text (compatible with latest cleantext)
         cleaned_text = clean(
             str(text),
             lower=True,
@@ -50,8 +50,7 @@ with st.expander("📝 Analyze Text", expanded=True):
             no_punct=True,
             no_emoji=True,
             no_special=True,
-            extra_spaces=True,
-            stopwords=True
+            extra_spaces=True
         )
 
         blob = TextBlob(cleaned_text)
@@ -111,7 +110,7 @@ with st.expander("📂 Analyze CSV File", expanded=True):
         if "review" not in df.columns:
             st.error("❌ Column 'review' not found in file.")
         else:
-            # Clean text for all reviews (compatible with latest cleantext)
+            # Clean text for all reviews (latest cleantext API)
             df["review_clean"] = df["review"].apply(lambda x: clean(
                 str(x),
                 lower=True,
@@ -120,8 +119,7 @@ with st.expander("📂 Analyze CSV File", expanded=True):
                 no_punct=True,
                 no_emoji=True,
                 no_special=True,
-                extra_spaces=True,
-                stopwords=True
+                extra_spaces=True
             ))
 
             # Apply sentiment analysis
