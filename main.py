@@ -1,17 +1,13 @@
-# =================================================
-# IMDB SENTIMENT ANALYSIS DASHBOARD - STREAMLIT
-# =================================================
-
-from textblob import TextBlob
+this code for streamlit from textblob import TextBlob
 import pandas as pd
 import streamlit as st
 from cleantext import clean
 
 # --------------------------------------------------
-# PAGE CONFIG
+# PAGE CONFIG (DESIGN)
 # --------------------------------------------------
 st.set_page_config(
-    page_title="IMDB Sentiment Analysis",
+    page_title="Sentiment Analysis Dashboard",
     page_icon="💬",
     layout="centered"
 )
@@ -19,11 +15,11 @@ st.set_page_config(
 # --------------------------------------------------
 # TITLE & DESCRIPTION
 # --------------------------------------------------
-st.title("💬 IMDB Sentiment Analysis Dashboard")
+st.title("💬 Sentiment Analysis Dashboard")
 st.markdown(
     """
     This dashboard performs **sentiment analysis** on:
-    - 📝 Individual reviews
+    - 📝 Individual text
     - 📂 Uploaded CSV files  
 
     Sentiment is classified as **Positive, Neutral, or Negative**
@@ -38,20 +34,10 @@ st.divider()
 # --------------------------------------------------
 with st.expander("📝 Analyze Text", expanded=True):
 
-    text = st.text_area("Enter IMDB review for sentiment analysis:")
+    text = st.text_area("Enter text for sentiment analysis:")
 
     if text:
-        # Clean the input text
-        cleaned_text = clean(
-            text,
-            clean_all=False,
-            extra_spaces=True,
-            stopwords=True,
-            lowercase=True,
-            numbers=True,
-            punct=True
-        )
-        blob = TextBlob(cleaned_text)
+        blob = TextBlob(str(text))
         polarity = round(blob.sentiment.polarity, 2)
         subjectivity = round(blob.sentiment.subjectivity, 2)
 
@@ -59,13 +45,27 @@ with st.expander("📝 Analyze Text", expanded=True):
         col1.metric("Polarity", polarity)
         col2.metric("Subjectivity", subjectivity)
 
-        # Adjust thresholds for IMDB reviews
-        if polarity > 0.1:
+        if polarity >= 0.5:
             st.success("😊 Sentiment: Positive")
-        elif polarity < -0.1:
+        elif polarity <= -0.5:
             st.error("☹️ Sentiment: Negative")
         else:
             st.info("😐 Sentiment: Neutral")
+
+    st.subheader("🧹 Clean Text")
+    pre = st.text_input("Enter text to clean:")
+
+    if pre:
+        cleaned = clean(
+            pre,
+            clean_all=False,
+            extra_spaces=True,
+            stopwords=True,
+            lowercase=True,
+            numbers=True,
+            punct=True
+        )
+        st.code(cleaned, language="text")
 
 # --------------------------------------------------
 # CSV ANALYSIS SECTION
@@ -75,7 +75,7 @@ with st.expander("📂 Analyze CSV File", expanded=True):
     st.markdown(
         """
         **CSV Requirements:**
-        - Must contain a column named **`review`**
+        - Must contain a column named **`tweets`**
         """
     )
 
@@ -86,9 +86,9 @@ with st.expander("📂 Analyze CSV File", expanded=True):
         return TextBlob(str(x)).sentiment.polarity
 
     def analyze(x):
-        if x > 0.1:
+        if x >= 0.5:
             return "Positive"
-        elif x < -0.1:
+        elif x <= -0.5:
             return "Negative"
         else:
             return "Neutral"
@@ -105,22 +105,11 @@ with st.expander("📂 Analyze CSV File", expanded=True):
             df.drop(columns=["Unnamed: 0"], inplace=True)
 
         # Check required column
-        if "review" not in df.columns:
-            st.error("❌ Column 'review' not found in file.")
+        if "tweets" not in df.columns:
+            st.error("❌ Column 'tweets' not found in file.")
         else:
-            # Clean text for all reviews
-            df["review_clean"] = df["review"].apply(lambda x: clean(
-                str(x),
-                clean_all=False,
-                extra_spaces=True,
-                stopwords=True,
-                lowercase=True,
-                numbers=True,
-                punct=True
-            ))
-
             # Apply sentiment analysis
-            df["score"] = df["review_clean"].apply(score)
+            df["score"] = df["tweets"].apply(score)
             df["analysis"] = df["score"].apply(analyze)
 
             st.success("✅ Sentiment analysis completed!")
@@ -136,7 +125,7 @@ with st.expander("📂 Analyze CSV File", expanded=True):
             st.download_button(
                 label="⬇️ Download sentiment results as CSV",
                 data=csv,
-                file_name="IMDB_Sentiment_Results.csv",
+                file_name="sentiment_analysis_results.csv",
                 mime="text/csv",
             )
 
@@ -144,4 +133,4 @@ with st.expander("📂 Analyze CSV File", expanded=True):
 # FOOTER
 # --------------------------------------------------
 st.divider()
-st.caption("📊 IMDB Sentiment Analysis Dashboard | Built with Streamlit & TextBlob")
+st.caption("📊 Sentiment Analysis Dashboard | Built with Streamlit & TextBlob")
