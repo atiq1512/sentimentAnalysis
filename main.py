@@ -43,14 +43,17 @@ with st.expander("📝 Analyze Text", expanded=True):
     if text:
         # Clean the input text
         cleaned_text = clean(
-            text,
-            clean_all=False,
+            str(text),
+            lower=True,
+            no_urls=True,
+            no_numbers=True,
+            no_punct=True,
+            no_emoji=True,
+            no_special=True,
             extra_spaces=True,
-            stopwords=True,
-            lowercase=True,
-            numbers=True,
-            punct=True
+            stopwords=True
         )
+
         blob = TextBlob(cleaned_text)
         polarity = round(blob.sentiment.polarity, 2)
         subjectivity = round(blob.sentiment.subjectivity, 2)
@@ -108,15 +111,17 @@ with st.expander("📂 Analyze CSV File", expanded=True):
         if "review" not in df.columns:
             st.error("❌ Column 'review' not found in file.")
         else:
-            # Clean text for all reviews
+            # Clean text for all reviews (compatible with latest cleantext)
             df["review_clean"] = df["review"].apply(lambda x: clean(
                 str(x),
-                clean_all=False,
+                lower=True,
+                no_urls=True,
+                no_numbers=True,
+                no_punct=True,
+                no_emoji=True,
+                no_special=True,
                 extra_spaces=True,
-                stopwords=True,
-                lowercase=True,
-                numbers=True,
-                punct=True
+                stopwords=True
             ))
 
             # Apply sentiment analysis
